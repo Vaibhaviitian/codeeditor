@@ -3,6 +3,7 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
+import Navbar from "../navbar/navbar";
 
 function SignUpPage() {
   const [username, setUsername] = useState("");
@@ -11,7 +12,7 @@ function SignUpPage() {
   const [isload, setIsload] = useState(false);
   const navigate = useNavigate();
   const handleregister = async (e) => {
-    console.log("donnnnnnnnn")
+    console.log("donnnnnnnnn");
     try {
       e.preventDefault();
       console.log(username, email, password);
@@ -37,8 +38,9 @@ function SignUpPage() {
   };
   return (
     <>
-      <div className="flex items-center justify-center h-screen bg-gray-50">
-        <div className="w-full max-w-md p-8 bg-white rounded shadow-md">
+      <div className="flex items-center justify-center h-screen bg-gray-900">
+        <Navbar />
+        <div className="w-full max-w-md p-8 bg-white rounded shadow-md mt-4">
           <div className="flex flex-col items-center mb-6">
             <div className="text-blue-600 mb-4">
               <svg
@@ -127,7 +129,8 @@ function SignUpPage() {
             {isload ? (
               <>
                 {" "}
-                <div className=" w-[100vh] h-[100vh] "
+                <div
+                  className=" w-[100vh] h-[100vh] "
                   style={{
                     display: "flex",
                     justifyContent: "center",

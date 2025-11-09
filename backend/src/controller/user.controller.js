@@ -5,16 +5,16 @@ import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import twilio from "twilio";
 import otpgenerator from "otp-generator";
-import axios from "axios"
-import { v4 as uuidv4 } from 'uuid';
-
-
+import axios from "axios";
+import { v4 as uuidv4 } from "uuid";
+import crypto from "crypto";
+import nodemailer from "nodemailer";
 const RegisterUser = async (req, res) => {
   try {
     const { username, email, password } = req.body;
     // console.log(username, email, password);
 
-    const user = await UserModel.findOne({ email ,  username });
+    const user = await UserModel.findOne({ email, username });
     // console.log("user");
 
     if (user) {
@@ -52,7 +52,7 @@ const RegisterUser = async (req, res) => {
       .status(500)
       .json({ message: `Error registering user: ${error.message}` });
   }
-}
+};
 
 const LoginUser = async (req, res) => {
   try {
@@ -112,6 +112,7 @@ const generateandsetOTP = async (req, res) => {
       lowerCaseAlphabets: false,
       specialChars: false,
     });
+    console.log(`Generated OTP: ${otp} for phone number: ${phonenumber}`);
     const stringWithoutSpaces = phonenumber.replace(/\s+/g, "");
     if (stringWithoutSpaces.length !== 13) {
       return res.status(400).json({
@@ -130,7 +131,7 @@ const generateandsetOTP = async (req, res) => {
       to: phonenumber,
       from: process.env.My_Twilio_phone_number,
     });
-
+    console.log(`OTP sent to ${phonenumber} successfully`);
     res.status(200).json({
       status: 200,
       message: `OTP sent successfully to your ${phonenumber}`,
@@ -153,7 +154,7 @@ const checkingotp = async (req, res) => {
         message: "Please provide both otp and id.",
       });
     }
-    // phone number shold be in +911234567890 format no space between anythign 
+    // phone number shold be in +911234567890 format no space between anythign
     const otpdoc = await OTPmodel.findOne({ phonenumber });
 
     if (!otpdoc) {
@@ -191,24 +192,36 @@ const checkingotp = async (req, res) => {
 };
 
 const languageVersionMap = {
-  nodejs: "0", // Use "nodejs" instead of "javascript"
-  javascript: "0", // Redirected to "nodejs"
-  typescript: "4",
-  python: "3",
-  java: "3",
-  c: "5",
-  cpp: "5", // Redirect to cpp17
-  cpp17: "5",
-  ruby: "2",
-  php: "3",
-  go: "3",
+  // Node / JavaScript
+  nodejs: "0", // e.g. nodejs
+  javascript: "0", // alias for nodejs
+
+  // TypeScript
+  typescript: "0", // placeholder: adjust when known
+
+  // Python
+  python: "3", // assuming python3 index 3
+  python3: "3",
+
+  // Java
+  java: "3", // known: JDK 11.0.4 index 3 :contentReference[oaicite:2]{index=2}
+
+  // C / C++
+  c: "4", // known: GCC 9.1.0 index 4 :contentReference[oaicite:3]{index=3}
+  cpp17: "0", // known: g++ 17 index 0 :contentReference[oaicite:4]{index=4}
+  cpp: "0", // alias for cpp17 or adjust if you support older
+
+  // Other languages (placeholders; you must test)
+  ruby: "0",
+  php: "0",
+  go: "0",
   rust: "0",
-  kotlin: "2",
-  swift: "3",
-  r: "3",
-  perl: "3",
-  dart: "3",
-  haskell: "3",
+  kotlin: "0",
+  swift: "0",
+  r: "0",
+  perl: "0",
+  dart: "0",
+  haskell: "0",
   xml: "0",
   yaml: "0",
   html: "0",
@@ -222,19 +235,20 @@ const languageAliasMap = {
 
 const executeCode = async (req, res) => {
   const { code, input, language } = req.body;
-
+  console.log(code);
   if (!code || !language) {
     return res.status(400).json({ error: "Code and language are required" });
   }
 
   // Normalize language and handle aliases
-  const languageKey = languageAliasMap[language.toLowerCase()] || language.toLowerCase();
+  const languageKey =
+    languageAliasMap[language.toLowerCase()] || language.toLowerCase();
   const versionIndex = languageVersionMap[languageKey];
 
   if (!versionIndex) {
     return res.status(400).json({ error: `Unsupported language: ${language}` });
   }
-
+  console.log(versionIndex);
   try {
     const response = await axios.post("https://api.jdoodle.com/v1/execute", {
       clientId: process.env.JDOODLE_CLIENT_ID,
@@ -245,10 +259,10 @@ const executeCode = async (req, res) => {
       versionIndex,
       compileOnly: false,
     });
-
     console.log(response.data);
     return res.json(response.data);
   } catch (error) {
+    console.log(error.response?.data || error.message);
     return res.status(500).json({
       error: "Failed to execute code",
       details: error.response?.data || error.message,
@@ -280,15 +294,15 @@ const generatingtoken = async (req, res) => {
 
 const fetchUserData = async (req, res) => {
   const { email } = req.body;
-  console.log(email)
+  console.log(email);
   // Check if email is provided
   if (!email) {
-    return res.status(400).json({ message: 'Email is required.' });
+    return res.status(400).json({ message: "Email is required." });
   }
 
   // Verify that the token belongs to the requested email
   if (req.user.email !== email) {
-    return res.status(403).json({ message: 'Unauthorized access.' });
+    return res.status(403).json({ message: "Unauthorized access." });
   }
 
   try {
@@ -296,12 +310,12 @@ const fetchUserData = async (req, res) => {
     const user = await UserModel.findOne({ email });
 
     if (!user) {
-      return res.status(404).json({ message: 'User not found.' });
+      return res.status(404).json({ message: "User not found." });
     }
 
     // Check if the user is verified
     if (!user.isverified) {
-      return res.status(403).json({ message: 'User is not verified.' });
+      return res.status(403).json({ message: "User is not verified." });
     }
 
     // Return user details (excluding sensitive data like password)
@@ -311,12 +325,14 @@ const fetchUserData = async (req, res) => {
       isverified: user.isverified,
     };
 
-    res.status(200).json({ message: "details fetched successfully", userDetails });
+    res
+      .status(200)
+      .json({ message: "details fetched successfully", userDetails });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: 'Server error.' });
+    res.status(500).json({ message: "Server error." });
   }
-}
+};
 
 const savecode = async (req, res) => {
   try {
@@ -329,7 +345,7 @@ const savecode = async (req, res) => {
     const newcode = await CodeModel.create({
       code: code,
       user: id,
-      title
+      title,
     });
 
     return res.status(200).json({
@@ -344,7 +360,6 @@ const savecode = async (req, res) => {
   }
 };
 
-
 const fetchmyCode = async (req, res) => {
   try {
     const { user_id } = req.body;
@@ -358,21 +373,160 @@ const fetchmyCode = async (req, res) => {
     if (docs.length === 0) {
       return res.status(200).json({
         message: "You have no saved code.",
-        data: []
+        data: [],
       });
     }
 
     return res.status(200).json({
       message: "Your saved codes:",
-      data: docs
+      data: docs,
     });
-
   } catch (error) {
     console.error("Error fetching code:", error);
     return res.status(500).json({
       message: "Error accessing saved codes",
-      error: error.message
+      error: error.message,
     });
+  }
+};
+
+const sendForgotPasswordMail = async (email, token) => {
+  if (!email || !token) {
+    throw new Error(
+      "Email and token are required to send forgot password mail."
+    );
+  }
+
+  try {
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: process.env.EMAIL,
+        pass: process.env.EMAIL_PASSWORD,
+      },
+    });
+
+    const resetLink = `http://localhost:5173/resetpassword/${token}`;
+
+    const htmlTemplate = `
+      <div style="
+        font-family: Arial, sans-serif;
+        background-color: #f4f4f4;
+        padding: 20px;
+        color: #333;
+      ">
+        <div style="
+          max-width: 600px;
+          margin: 0 auto;
+          background: #ffffff;
+          border-radius: 10px;
+          padding: 30px;
+          box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        ">
+          <h2 style="text-align:center; color:#007bff;">Reset Your Password 🔐</h2>
+          <p>Hey there,</p>
+          <p>You recently requested to reset your password. Click the button below to reset it:</p>
+
+          <div style="text-align:center; margin: 30px 0;">
+            <a href="${resetLink}" target="_blank" 
+              style="
+                background-color: #007bff;
+                color: white;
+                padding: 12px 25px;
+                border-radius: 6px;
+                text-decoration: none;
+                font-weight: bold;
+              ">
+              Reset Password
+            </a>
+          </div>
+
+          <p>If that button doesn’t work, copy and paste this link into your browser:</p>
+          <p style="word-break: break-all; color: #555;">${resetLink}</p>
+
+          <p><b>Note:</b> This link will expire in 10 minutes.</p>
+          <hr style="margin: 20px 0;">
+          <p style="font-size: 14px; color: #888; text-align:center;">
+            This email was sent from your CodeEditor App 🧑‍💻<br>
+            If you didn’t request a password reset, please ignore this message.
+          </p>
+        </div>
+      </div>
+    `;
+
+    await transporter.sendMail({
+      from: `"CodeEditor Team" <${process.env.EMAIL}>`,
+      to: email,
+      subject: "Password Reset Request",
+      html: htmlTemplate,
+    });
+
+    console.log("✅ Forgot password mail sent successfully to:", email);
+  } catch (error) {
+    console.error("❌ Error sending mail:", error.message);
+    throw new Error("Error sending forgot password email");
+  }
+};
+
+const forgotpassword = async (req, res) => {
+  const { email } = req.body;
+  if (!email) {
+    return res.status(400).json({ message: "Email is required." });
+  }
+  try {
+    const user = await UserModel.findOne({ email });
+    if (!user) {
+      return res
+        .status(404)
+        .json({ message: "User not found. Please register" });
+    }
+    const plaintoken = crypto.randomBytes(32).toString("hex");
+    const hashedtoken = crypto
+      .createHash("sha256")
+      .update(plaintoken)
+      .digest("hex");
+    user.resetpasswordtoken = hashedtoken;
+    user.resetpasswordexpire = Date.now() + 10 * 60 * 1000;
+    await user.save();
+    await sendForgotPasswordMail(user.email, plaintoken);
+    return res.status(200).json({
+      message: "Password reset token generated and email sent.",
+    });
+  } catch (error) {
+    return res.status(500).json({ message: `Error: ${error.message}` });
+  }
+};
+
+
+const updatepassword = async (req, res) => {
+  const { token, newpassword } = req.body;
+  console.log(req.body);
+  if (!token || !newpassword) {
+    return res
+      .status(400)
+      .json({ message: "Token and new password are required" });
+  }
+  try {
+    const hashedtoken = crypto
+      .createHash("sha256")
+      .update(token)
+      .digest("hex");
+
+    const user = await UserModel.findOne({
+      resetpasswordtoken: hashedtoken,
+      resetpasswordexpire: { $gt: Date.now() },
+    });
+    if (!user) {
+      return res.status(400).json({ message: "Invalid or expired token" });
+    }
+    const hashedpassword = await bcrypt.hash(newpassword, 10);
+    user.password = hashedpassword;
+    user.resetpasswordtoken = undefined;
+    user.resetpasswordexpire = undefined;
+    await user.save();
+    return res.status(200).json({ message: "Password updated successfully" });
+  } catch (error) {
+    return res.status(500).json({ message: `Error: ${error.message}` });
   }
 };
 
@@ -387,5 +541,7 @@ export {
   generatingtoken,
   fetchUserData,
   savecode,
-  fetchmyCode
+  fetchmyCode,
+  forgotpassword,
+  updatepassword,
 };

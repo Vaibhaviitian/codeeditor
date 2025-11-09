@@ -27,10 +27,18 @@ const UserSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
-    Mycodes: [{
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "userCode"
-    }]
+    Mycodes: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "userCode",
+      },
+    ],
+    resetpasswordtoken: {
+      type: String,
+    },
+    resetpasswordexpire: {
+      type: Date,
+    },
   },
   {
     timestamps: true,

@@ -6,7 +6,7 @@ import axios from "axios";
 
 const PhoneNumberPage = () => {
   const [phonenumber, setphonenumber] = useState("");
-  const [isload, setisload] = useState(false);  
+  const [isload, setisload] = useState(false);
   const navigate = useNavigate();
 
   // Handle mobile number input change
@@ -57,7 +57,7 @@ const PhoneNumberPage = () => {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100">
+    <div className="flex items-center justify-center min-h-screen bg-gray-900">
       <div className="bg-white p-8 rounded-lg shadow-md w-96">
         <h1 className="text-2xl font-bold mb-6 text-center">Login with OTP</h1>
         <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -77,20 +77,15 @@ const PhoneNumberPage = () => {
         <button
           type="submit"
           onClick={handleGetOtp}
+          disabled={isload}
           className="w-full mt-6 bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition duration-300 cursor-pointer"
         >
-          Get OTP
+          {isload ? <>Getting OTP... 🚫</> : <>Get OTP</>}
         </button>
         {isload ? (
           <>
             {" "}
-            <div className=" w-full h-full"
-              style={{
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-              }}
-            >
+            <div className="justify-items-center mt-3">
               <div className="w-10 h-10 border-4 border-t-blue-500 border-gray-300 rounded-full animate-spin"></div>
             </div>
           </>

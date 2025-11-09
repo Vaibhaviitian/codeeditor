@@ -10,10 +10,10 @@ import Privateroutes from "./components/auth/Privateroute.jsx";
 import CreateRoom from "./components/auth/socket.jsx";
 import AboutPage from "./pages/about/about.jsx";
 import UserProfile from "./pages/UserProfile/UserProfile.jsx";
-
+import ForgotPass from "./components/auth/Forgotpass.jsx";
+import ResetPass from "./components/auth/Resetpass.jsx"
 function App() {
-
-  const [isLogin, setisLogin] = useState(localStorage.getItem("islogin"))
+  const [isLogin, setisLogin] = useState(localStorage.getItem("islogin"));
 
   const router = createBrowserRouter([
     {
@@ -51,9 +51,18 @@ function App() {
     {
       path: "/ll",
       element: <CreateRoom />,
-    },{
+    },
+    {
       path: "/user/profile",
       element: <UserProfile />,
+    },
+    {
+      path: "/forgotpassword",
+      element: <ForgotPass />,
+    },
+    {
+      path:"/resetpassword/:token",
+      element:<ResetPass/>
     },
   ]);
 

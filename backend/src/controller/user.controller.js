@@ -8,7 +8,7 @@ import otpgenerator from "otp-generator";
 import axios from "axios";
 import { v4 as uuidv4 } from "uuid";
 import crypto from "crypto";
-import nodemailer from "nodemailer";
+import { Resend } from "resend";
 const RegisterUser = async (req, res) => {
   try {
     const { username, email, password } = req.body;
@@ -392,33 +392,15 @@ const fetchmyCode = async (req, res) => {
 
 const sendForgotPasswordMail = async (email, token) => {
   if (!email || !token) {
-    throw new Error(
-      "Email and token are required to send forgot password mail."
-    );
+    throw new Error("Email and token are required to send forgot password mail.");
   }
-  console.log("in mail part");
+
   try {
-    // const transporter = nodemailer.createTransport({
-    //   service: "gmail",
-    //   secure: true,
-    //   port: 465,
-    //   auth: {
-    //     user: "hackfest2k25@gmail.com",
-    //     pass: "tycspsjtiheloczd",
-    //   },
-    // });
-    const transporter = nodemailer.createTransport({
-      host: "smtp.gmail.com",
-      secure: true,
-      port: 465,
-      auth: {
-        user: process.env.EMAIL,
-        pass: process.env.EMAIL_PASSWORD,
-      },
-    });
-    console.log("resert");
+    console.log("in mail part");
+    const resend = new Resend(process.env.RESEND_API_KEY);
+    console.log(process.env.RESEND_API_KEY);
     const resetLink = `https://codeeditor-ten-zeta.vercel.app/resetpassword/${token}`;
-    console.log(resetLink);
+    console.log("resetLink:", resetLink);
     const htmlTemplate = `
       <div style="
         font-family: Arial, sans-serif;
@@ -464,15 +446,15 @@ const sendForgotPasswordMail = async (email, token) => {
         </div>
       </div>
     `;
-    console.log("gaya");
-    await transporter.sendMail({
-      from: `"CodeEditor Team" <${process.env.EMAIL}>`,
+
+    const data = await resend.emails.send({
+      from: "CodeEditor <onboarding@resend.dev>", // required sender domain
       to: email,
       subject: "Password Reset Request",
       html: htmlTemplate,
     });
 
-    console.log("✅ Forgot password mail sent successfully to:", email);
+    console.log("✅ Forgot password mail sent successfully to:", email, data);
   } catch (error) {
     console.error("❌ Error sending mail:", error.message);
     throw new Error("Error sending forgot password email");

@@ -4,7 +4,7 @@ A lightweight code editor with real-time collaboration, AI-powered code assistan
 
 ## Key Features
 
-source code - https://github.com/anirban2005143a/codeEditor
+source code - https://github.com/Vaibhaviitian/codeeditor
 
 
 video demo - https://drive.google.com/file/d/1jxgk5UJYMwtnjDUV8IOSYDSnFgNThWHl/view?usp=sharing
@@ -43,7 +43,7 @@ video demo - https://drive.google.com/file/d/1jxgk5UJYMwtnjDUV8IOSYDSnFgNThWHl/v
   - Basic in-editor comments for team discussions.
 
 - **Security & Authentication**:
-  - Simple email and Google OAuth login.
+  - Simple email login and forget password functionality.
   - Two-factor authentication (2FA) via OTP/TOTP.
   - Private and public workspaces for controlled access.
 
@@ -55,7 +55,7 @@ video demo - https://drive.google.com/file/d/1jxgk5UJYMwtnjDUV8IOSYDSnFgNThWHl/v
 
 ## Demo
 
-You can view a live demo of the editor - https://code-fusion-pied.vercel.app/
+You can view a live demo of the editor - https://codeeditor-ten-zeta.vercel.app/
 
 You can view a submitted ppt demo of this editor [here](https://drive.google.com/file/d/19fTx7NWl0e-9jC_jsCogTKBK_nrAxrd5/view?usp=sharing).
 

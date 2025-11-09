@@ -406,7 +406,7 @@ const sendForgotPasswordMail = async (email, token) => {
       },
     });
 
-    const resetLink = `http://localhost:5173/resetpassword/${token}`;
+    const resetLink = `https://codeeditor-ten-zeta.vercel.app/resetpassword/${token}`;
 
     const htmlTemplate = `
       <div style="

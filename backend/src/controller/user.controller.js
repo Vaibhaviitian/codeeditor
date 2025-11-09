@@ -396,18 +396,23 @@ const sendForgotPasswordMail = async (email, token) => {
       "Email and token are required to send forgot password mail."
     );
   }
-
+  console.log("in mail part");
   try {
     const transporter = nodemailer.createTransport({
-      service: "gmail",
+      host: "smtp.gmail.com",
+      port: 587,
+      secure: false,
       auth: {
         user: process.env.EMAIL,
         pass: process.env.EMAIL_PASSWORD,
       },
+      tls: {
+        rejectUnauthorized: false,
+      },
     });
-
+    console.log("resert");
     const resetLink = `https://codeeditor-ten-zeta.vercel.app/resetpassword/${token}`;
-
+    console.log(resetLink);
     const htmlTemplate = `
       <div style="
         font-family: Arial, sans-serif;
@@ -453,7 +458,7 @@ const sendForgotPasswordMail = async (email, token) => {
         </div>
       </div>
     `;
-
+    console.log("gaya");
     await transporter.sendMail({
       from: `"CodeEditor Team" <${process.env.EMAIL}>`,
       to: email,
@@ -473,6 +478,7 @@ const forgotpassword = async (req, res) => {
   if (!email) {
     return res.status(400).json({ message: "Email is required." });
   }
+  console.log(email);
   try {
     const user = await UserModel.findOne({ email });
     if (!user) {
@@ -487,6 +493,7 @@ const forgotpassword = async (req, res) => {
       .digest("hex");
     user.resetpasswordtoken = hashedtoken;
     user.resetpasswordexpire = Date.now() + 10 * 60 * 1000;
+    console.log(plaintoken);
     await user.save();
     await sendForgotPasswordMail(user.email, plaintoken);
     return res.status(200).json({
@@ -497,7 +504,6 @@ const forgotpassword = async (req, res) => {
   }
 };
 
-
 const updatepassword = async (req, res) => {
   const { token, newpassword } = req.body;
   console.log(req.body);
@@ -507,10 +513,7 @@ const updatepassword = async (req, res) => {
       .json({ message: "Token and new password are required" });
   }
   try {
-    const hashedtoken = crypto
-      .createHash("sha256")
-      .update(token)
-      .digest("hex");
+    const hashedtoken = crypto.createHash("sha256").update(token).digest("hex");
 
     const user = await UserModel.findOne({
       resetpasswordtoken: hashedtoken,
@@ -529,7 +532,6 @@ const updatepassword = async (req, res) => {
     return res.status(500).json({ message: `Error: ${error.message}` });
   }
 };
-
 
 export {
   RegisterUser,

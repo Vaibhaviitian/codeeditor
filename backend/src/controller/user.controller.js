@@ -398,16 +398,22 @@ const sendForgotPasswordMail = async (email, token) => {
   }
   console.log("in mail part");
   try {
+    // const transporter = nodemailer.createTransport({
+    //   service: "gmail",
+    //   secure: true,
+    //   port: 465,
+    //   auth: {
+    //     user: "hackfest2k25@gmail.com",
+    //     pass: "tycspsjtiheloczd",
+    //   },
+    // });
     const transporter = nodemailer.createTransport({
       host: "smtp.gmail.com",
-      port: 587,
-      secure: false,
+      secure: true,
+      port: 465,
       auth: {
         user: process.env.EMAIL,
         pass: process.env.EMAIL_PASSWORD,
-      },
-      tls: {
-        rejectUnauthorized: false,
       },
     });
     console.log("resert");

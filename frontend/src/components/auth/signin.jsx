@@ -13,11 +13,9 @@ function SignInPage() {
   const navigate = useNavigate();
   const handlelogin = async (e) => {
     try {
-      console.log("sin");
       e.preventDefault();
       setIsload(true);
       // toast.success("login into the system");
-      console.log("handling login");
       const response = await axios.post(
         `${import.meta.env.VITE_REACT_BACKEND_URL}/api/haxplore/user/Login`,
         {
@@ -25,15 +23,12 @@ function SignInPage() {
           password,
         }
       );
-      console.log(response);
-      console.log(response.data.user._id);
       localStorage.setItem("itemhai", response.data.user._id);
       localStorage.setItem("token", response.data.jwttoken);
       localStorage.setItem("username", response.data.user.username);
       localStorage.setItem("email", response.data.user.email);
       localStorage.setItem("islogin", "true");
       toast.success(response.data.message);
-      console.log(response.data.user.isverified);
       if (response.data.user.isverified) {
         navigate("/editor");
         localStorage.setItem("islogin", "true");
@@ -121,10 +116,10 @@ function SignInPage() {
 
             <button
               type="submit"
-              className="w-full px-4 py-2 text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
+              className="w-full px-4 py-2 text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 "
               disabled={isload}
             >
-              {isload ? <>Signing ..... 🚫</> : <>Sign In</>}
+              {isload ? <>🚫</> : <>Sign In</>}
             </button>
             {isload ? (
               <>

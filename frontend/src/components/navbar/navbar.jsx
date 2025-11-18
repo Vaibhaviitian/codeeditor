@@ -21,7 +21,6 @@ const Navbar = (props) => {
     const getRandomChar = () => chars[Math.floor(Math.random() * chars.length)];
 
     const id = `${getRandomChar()}${getRandomChar()}${getRandomChar()}-${getRandomChar()}${getRandomChar()}${getRandomChar()}-${getRandomChar()}${getRandomChar()}${getRandomChar()}`;
-    console.log(id);
     setroomId(id);
   };
 

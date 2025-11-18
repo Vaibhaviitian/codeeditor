@@ -25,15 +25,12 @@ function ResetPass() {
     }
     try {
       setIsLoading(true);
-      console.log(password);
-      console.log(token);
       const res = await axios.post(
         `${
           import.meta.env.VITE_REACT_BACKEND_URL
         }/api/haxplore/user/updatepassword`,
         { newpassword: password, token: token }
       );
-      console.log(res);
       toast.success(res.data.message || "Password reset successful!");
       setIsLoading(false);
 

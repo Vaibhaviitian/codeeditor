@@ -6,13 +6,10 @@ const CreateRoom = () => {
   const [roomName, setRoomName] = useState("");
   const socket = io(`${import.meta.env.VITE_REACT_BACKEND_URL}`);
   const joinRoom = () => {
-    console.log("wjkbvfwbv")
     sets(socket);
     if (s && roomName) {
-      console.log(roomName);
       socket.emit("joinRoom", roomName);
       socket.on("message", (msg) => {
-        console.log(msg);
       });
     }
     return () => {

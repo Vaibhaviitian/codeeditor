@@ -19,15 +19,12 @@ const PhoneNumberPage = () => {
   // Handle "Get OTP" button click
   const handleGetOtp = async () => {
     setisload(true);
-    console.log(phonenumber.length);
     if (phonenumber.length !== 10) {
       toast.error("Please enter a valid 10-digit mobile number.");
       return;
     }
 
-    console.log(phonenumber);
     let s = "+91" + phonenumber;
-    console.log(s);
     localStorage.setItem("pn", s);
     setphonenumber(s);
     try {
@@ -40,7 +37,6 @@ const PhoneNumberPage = () => {
         }
       );
 
-      console.log(response.data.message);
 
       // Navigate only if OTP is successfully sent
       if (response.data.status == 200) {

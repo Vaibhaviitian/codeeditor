@@ -12,10 +12,9 @@ function SignUpPage() {
   const [isload, setIsload] = useState(false);
   const navigate = useNavigate();
   const handleregister = async (e) => {
-    console.log("donnnnnnnnn");
+    setIsload(true);
     try {
       e.preventDefault();
-      console.log(username, email, password);
       const response = await axios.post(
         `${import.meta.env.VITE_REACT_BACKEND_URL}/api/haxplore/user/Register`,
         {
@@ -24,11 +23,9 @@ function SignUpPage() {
           password,
         }
       );
-      console.log(response);
       toast.success(response.data.message);
       setIsload(false);
       navigate("/Signin");
-      console.log(response);
     } catch (error) {
       console.log(error);
       if (error.response.data.message) toast.error(error.response.data.message);
@@ -120,23 +117,15 @@ function SignUpPage() {
               />
             </div>
             <button
-              onClick={handleregister}
               type="submit"
-              className="w-full px-4 py-2 text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-2 text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 "
+              disabled={isload}
             >
-              Sign Up
+              {isload ? <>🚫</> : <>Sign Up</>}
             </button>
             {isload ? (
               <>
-                {" "}
-                <div
-                  className=" w-[100vh] h-[100vh] "
-                  style={{
-                    display: "flex",
-                    justifyContent: "center",
-                    alignItems: "center",
-                  }}
-                >
+                <div className=" justify-items-center ">
                   <div className="w-10 h-10 border-4 border-t-blue-500 border-gray-300 rounded-full animate-spin"></div>
                 </div>
               </>

@@ -35,7 +35,6 @@ const OTPPage = () => {
       toast.error("Invalid phone number or OTP.");
       return;
     }
-    console.log(phonenumber);
     try {
       let id = localStorage.getItem("itemhai");
       const response = await axios.post(
@@ -46,7 +45,6 @@ const OTPPage = () => {
           otp: enteredOtp,
         }
       );
-      console.log(response.data);
       if (response.data.ans == "true"){
         toast.success(response.data.message);
         navigate("/editor");
